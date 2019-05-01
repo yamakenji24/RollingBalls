@@ -1,13 +1,14 @@
 package com.example.rollingballs
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Paint
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.SurfaceHolder
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -103,5 +104,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener , SurfaceHolder.Ca
         val sensorManager = getSystemService(Context.SENSOR_SERVICE)
                 as SensorManager
         sensorManager.unregisterListener(this)
+    }
+
+    private fun drawCanvas() {
+        val canvas = surfaceView.holder.lockCanvas()
+        canvas.drawColor(Color.YELLOW)
+        canvas.drawCircle(ballX, ballY, radius, Paint().apply {
+            color = Color.MAGENTA
+        })
+        surfaceView.holder.unlockCanvasAndPost(canvas)
     }
 }
