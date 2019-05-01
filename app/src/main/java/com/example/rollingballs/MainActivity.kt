@@ -15,18 +15,59 @@ class MainActivity : AppCompatActivity(), SensorEventListener , SurfaceHolder.Ca
     private var surfaceWidth: Int = 0
     private var surfaceHeight: Int = 0
 
+    private val radius = 50.0f
+    private val coef = 1000.0f
+
+    private var ballX:Float = 0f
+    private var ballY:Float = 0f
+    private var vx: Float = 0f
+    private var vy: Float = 0f
+    private var time: Long = 0L
+
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
 
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) return
+
+        if ( time == 0L) time = System.currentTimeMillis()
         if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
-            Log.d("MainActivity",
-                "x = ${event.values[0].toString()}" +
-                ",y = ${event.values[1].toString()}" +
-                ",z  ${event.values[2].toString()}"
-            )
+            val x = -event.values[0]
+            val y = event.values[1]
+
+            var t = (System.currentTimeMillis() - time).toFloat()
+            time = System.currentTimeMillis()
+            t /= 1000.0f
+
+            // 加速度計算
+            val dx = vx * t + x * t * t / 2.0f
+            val dy = vy * t + y * t * t / 2.0f
+
+            // 単位メートルを画面幅に合わせるための変換
+            ballX += dx * coef
+            ballY += dy * coef
+
+            // 等加速度直線運動
+            vx += x * t
+            vy += y * t
+
+            if ( ballX - radius < 0 && vx < 0) {
+                vx = -vx / 1.5f
+                ballX = radius
+            } else if (ballX + radius > surfaceWidth && vx > 0) {
+                vx = -vx / 1.5f
+                ballX = surfaceWidth - radius
+            }
+            if ( ballY - radius < 0 && vy < 0) {
+                vy = -vy / 1.5f
+                ballY = radius
+            } else if (ballY + radius > surfaceHeight && vy > 0) {
+                vy = -vy / 1.5f
+                ballY = surfaceHeight - radius
+            }
+
+            drawCanvas()
         }
     }
 
@@ -52,6 +93,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener , SurfaceHolder.Ca
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
         surfaceWidth = width
         surfaceHeight = height
+
+        // ビューの半分にすることで初期値を中心に設定
+        ballX = (width / 2).toFloat()
+        ballY = (height / 2).toFloat()
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
