@@ -1,6 +1,7 @@
 package com.example.rollingballs
 
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.Paint
 import android.hardware.Sensor
@@ -74,6 +75,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener , SurfaceHolder.Ca
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 画面を縦方向にロック
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         setContentView(R.layout.activity_main)
         val holder = surfaceView.holder
         holder.addCallback(this)
